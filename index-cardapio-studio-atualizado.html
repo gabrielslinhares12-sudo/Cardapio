@@ -1,0 +1,2199 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cardápio Studio</title>
+  <meta name="description" content="Crie cardápios com a identidade de cada cliente.">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --ui-bg: #f4f6f9;
+      --ui-card: #ffffff;
+      --ui-text: #202633;
+      --ui-muted: #6f7888;
+      --ui-border: #e2e6ee;
+      --ui-primary: #214fe5;
+      --ui-primary-soft: #f1f5ff;
+      --ui-radius: 10px;
+      --ui-shadow: 0 10px 30px rgba(24, 41, 72, .08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--ui-bg);
+      color: var(--ui-text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid #d9dfe9;
+      background: #fff;
+      color: #263248;
+      border-radius: 8px;
+      padding: 10px 14px;
+      transition: .15s ease;
+    }
+
+    button:hover {
+      border-color: var(--ui-primary);
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid #9ab5ff;
+      outline-offset: 2px;
+    }
+
+    .primary {
+      background: var(--ui-primary);
+      color: #fff;
+      border-color: var(--ui-primary);
+    }
+
+    .wide { width: 100%; }
+
+    .text-button {
+      border: 0;
+      padding: 0;
+      color: #687285;
+      background: transparent;
+    }
+
+    header {
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid var(--ui-border);
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      text-decoration: none;
+      color: #1b2b57;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--ui-primary);
+      display: inline-block;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      max-width: 1650px;
+      margin: auto;
+    }
+
+    aside {
+      background: #fff;
+      padding: 28px;
+      border-right: 1px solid var(--ui-border);
+      min-width: 0;
+    }
+
+    .intro-kicker {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--ui-primary);
+      margin: 0 0 10px;
+    }
+
+    h1 {
+      font-size: 30px;
+      line-height: 1.12;
+      letter-spacing: -.8px;
+      margin: 0 0 10px;
+    }
+
+    p {
+      line-height: 1.5;
+      color: var(--ui-muted);
+    }
+
+    .panel-section {
+      border-top: 1px solid #e9ecf2;
+      margin-top: 28px;
+      padding-top: 22px;
+    }
+
+    .panel-section h2 {
+      font-size: 15px;
+      line-height: 1.2;
+      margin: 0 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step {
+      color: #8b95a8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hint {
+      font-size: 12px;
+      line-height: 1.45;
+      color: #7a8495;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 14px 0;
+      color: #4a5364;
+    }
+
+    input:not([type=file]):not([type=range]),
+    select,
+    textarea {
+      display: block;
+      width: 100%;
+      margin-top: 7px;
+      border: 1px solid #dfe3ec;
+      border-radius: 8px;
+      padding: 10px 11px;
+      background: #fff;
+      color: var(--ui-text);
+    }
+
+    input[type=color] {
+      height: 42px;
+      padding: 5px !important;
+    }
+
+    input[type=range] {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    textarea {
+      min-height: 82px;
+      resize: vertical;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .upload {
+      padding: 13px;
+      border: 1px dashed #a9b6cd;
+      border-radius: 9px;
+      background: #f9fbff;
+      cursor: pointer;
+    }
+
+    .upload input {
+      display: block;
+      margin-top: 9px;
+      width: 100%;
+      font-size: 12px;
+    }
+
+    .templates {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .templates button {
+      padding: 8px;
+      text-align: left;
+      min-width: 0;
+      background: #fff;
+    }
+
+    .templates button.selected {
+      border: 2px solid var(--ui-primary);
+      padding: 7px;
+      background: var(--ui-primary-soft);
+    }
+
+    .template-thumb {
+      display: grid;
+      height: 82px;
+      border-radius: 7px;
+      margin-bottom: 8px;
+      padding: 9px;
+      overflow: hidden;
+      align-content: start;
+      gap: 4px;
+    }
+
+    .template-thumb b {
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .template-thumb i {
+      display: block;
+      height: 4px;
+      border-radius: 4px;
+      opacity: .82;
+      background: currentColor;
+    }
+
+    .template-thumb i:nth-of-type(2) { width: 72%; }
+    .template-thumb i:nth-of-type(3) { width: 88%; }
+    .template-thumb i:nth-of-type(4) { width: 60%; }
+
+    .template-name {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .templates button small {
+      display: block;
+      color: #748095;
+      font-size: 10px;
+      line-height: 1.3;
+      margin-top: 3px;
+    }
+
+    .t-retro { background:#16513f; color:#f6ecd8; border:2px solid #f6ecd8; }
+    .t-bistro { background:#efe7dc; color:#201c18; border:1px solid #bcae9d; }
+    .t-editorial { background:#f5f0e8; color:#27231f; border-left:6px solid #27231f; }
+    .t-minimal { background:#f4ecd8; color:#33291c; border:1px solid #9c907e; }
+    .t-classic { background:#fff; color:#222; border:1px solid #bbb; }
+    .t-compact { background:#222d33; color:#f0eee5; grid-template-columns:1fr 1fr; }
+    .t-modern { background:#fff7ed; color:#7c2d12; border:1px solid #fed7aa; grid-template-columns:1fr 1fr; }
+    .t-dark { background:#111827; color:#f5e7c8; border:1px solid #374151; }
+    .t-table { background:#f8fafc; color:#1f2937; border:1px solid #cbd5e1; grid-template-columns:1fr 28px; }
+    .t-promo { background:#fffbeb; color:#7c2d12; border:2px solid #f59e0b; }
+    .t-blocks { background:#eef2ff; color:#312e81; border:1px solid #c7d2fe; grid-template-columns:1fr 1fr; }
+    .t-photo { background:#18181b; color:#fafafa; grid-template-columns:1fr 1fr; }
+
+    .list-form {
+      border: 1px solid #dce3f0;
+      border-radius: 12px;
+      padding: 14px;
+      margin: 16px 0;
+      background: #f7f9fc;
+    }
+
+    .list-form > label { margin-top: 0; }
+
+    .item-form {
+      border: 1px solid #e2e6ef;
+      border-radius: 9px;
+      padding: 12px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .item-form label {
+      font-size: 12px;
+      margin: 9px 0;
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .delete {
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+
+    .variant-row {
+      border-top: 1px solid #e3e7ef;
+      padding: 8px 0;
+    }
+
+    .variant-row button {
+      font-size: 11px;
+      padding: 6px 8px;
+    }
+
+    .workspace {
+      padding: 26px 36px 40px;
+      min-width: 0;
+    }
+
+    .preview-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      max-width: 760px;
+      margin: 0 auto 22px;
+    }
+
+    .preview-bar strong {
+      font-size: 14px;
+    }
+
+    .preview-bar span {
+      display: block;
+      font-size: 12px;
+      color: #748095;
+      margin-top: 4px;
+    }
+
+    .menu {
+      --ink: #a8302d;
+      --paper: #fff4dc;
+      --gap: 22px;
+      background: var(--paper);
+      color: var(--ink);
+      max-width: 760px;
+      margin: auto;
+      min-height: 960px;
+      padding: 48px;
+      box-shadow: var(--ui-shadow);
+      position: relative;
+      font-family: Georgia, serif;
+    }
+
+    .menu-top {
+      text-align: center;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 25px;
+    }
+
+    .menu-top > img.logo {
+      display: block;
+      max-width: 180px;
+      max-height: 110px;
+      object-fit: contain;
+      margin: 0 auto 20px;
+    }
+
+    .eyebrow {
+      font: 12px Arial, sans-serif;
+      letter-spacing: 3px;
+    }
+
+    .menu-top h2 {
+      font-size: 45px;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+      margin: 18px 0 12px;
+    }
+
+    .menu-top p {
+      color: inherit;
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .menu-title {
+      font-size: 20px;
+      text-align: center;
+      letter-spacing: 6px;
+      margin: 25px 0;
+    }
+
+    .group {
+      margin-top: 30px;
+      break-inside: avoid;
+    }
+
+    .group > h3 {
+      font-size: 22px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 9px;
+      letter-spacing: 1px;
+    }
+
+    .dish {
+      margin: var(--gap) 0;
+      break-inside: avoid;
+    }
+
+    .dish-line {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      font-size: 19px;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+
+    .dish-line > span:first-child {
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .price {
+      white-space: nowrap;
+      font-size: 17px;
+    }
+
+    .dish p {
+      margin: 6px 0 0;
+      color: inherit;
+      opacity: .85;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .item-photo {
+      display: none;
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .variant-prices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      justify-content: flex-end;
+      max-width: 100%;
+    }
+
+    .variant-prices > span { white-space: nowrap; }
+    .variant-prices small { font-weight: 400; }
+
+    .price-below .dish-line,
+    .dish.item-price-below .dish-line {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .dish.item-price-inline .dish-line {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .price-small .price {
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    .menu-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid var(--ink);
+      text-align: center;
+      font: 13px Arial, sans-serif;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    /* 01 - Grade Retrô */
+    .menu.retro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 28px;
+      align-content: start;
+      border: 10px solid var(--ink);
+      outline: 2px solid var(--ink);
+      outline-offset: -18px;
+      padding: 42px;
+    }
+
+    .menu.retro .menu-top,
+    .menu.retro .menu-title,
+    .menu.retro .menu-footer { grid-column: 1 / -1; }
+
+    .menu.retro .menu-top {
+      text-align: left;
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      align-items: end;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .menu.retro .menu-top h2 {
+      font: 900 64px/.85 Arial, sans-serif;
+      letter-spacing: -4px;
+      margin: 8px 0;
+      max-width: 420px;
+    }
+
+    .menu.retro .menu-top p {
+      text-align: right;
+      font: 700 18px/1.1 Arial, sans-serif;
+      text-transform: uppercase;
+    }
+
+    .menu.retro .eyebrow { grid-column: 1 / -1; }
+
+    .menu.retro .menu-title {
+      text-align: right;
+      margin: 12px 0 4px;
+      font: 700 13px Arial, sans-serif;
+      letter-spacing: 3px;
+    }
+
+    .menu.retro .group { margin-top: 18px; }
+
+    .menu.retro .group > h3 {
+      font: 900 22px Arial, sans-serif;
+      border: 1px solid var(--ink);
+      padding: 8px 10px;
+      margin: 0 0 12px;
+    }
+
+    .menu.retro .dish-line { font-family: Arial, sans-serif; font-size: 15px; }
+    .menu.retro .dish p { font-family: Arial, sans-serif; font-size: 12px; }
+    .menu.retro .menu-footer { border: 1px solid var(--ink); padding: 14px; margin-top: 24px; }
+
+    /* 02 - Bistrô Elegante */
+    .menu.craft {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 0 42px;
+      align-content: start;
+      padding: 56px 54px;
+    }
+
+    .menu.craft .menu-top,
+    .menu.craft .menu-title,
+    .menu.craft .menu-footer { grid-column: 1 / -1; }
+
+    .menu.craft .menu-top { border: 0; padding-bottom: 28px; }
+
+    .menu.craft .menu-top h2 {
+      font: 400 52px/1 Georgia, serif;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin: 12px 0;
+    }
+
+    .menu.craft .menu-title {
+      font: 11px Arial, sans-serif;
+      letter-spacing: 6px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding: 10px;
+      margin: 0 0 16px;
+    }
+
+    .menu.craft .group > h3 {
+      font: 700 13px Arial, sans-serif;
+      letter-spacing: 4px;
+      text-align: center;
+      background: rgba(0,0,0,.04);
+      padding: 10px;
+      border: 0;
+    }
+
+    .menu.craft .dish-line { font-size: 16px; }
+    .menu.craft .dish p { font-size: 12px; }
+    .menu.craft .menu-footer { border-top: 1px solid var(--ink); }
+
+    /* 03 - Minimal Duo */
+    .menu.minimal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 45px;
+      align-content: start;
+      padding: 58px;
+    }
+
+    .menu.minimal .menu-top,
+    .menu.minimal .menu-title,
+    .menu.minimal .menu-footer { grid-column: 1 / -1; }
+
+    .menu.minimal .menu-top {
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 34px;
+    }
+
+    .menu.minimal .menu-top h2 {
+      font: 400 62px/1 Arial, sans-serif;
+      letter-spacing: 11px;
+      margin: 12px 0;
+    }
+
+    .menu.minimal .eyebrow { font-size: 10px; letter-spacing: 5px; }
+    .menu.minimal .menu-title { display: none; }
+    .menu.minimal .group { margin-top: 42px; }
+
+    .menu.minimal .group > h3 {
+      font: 900 20px Arial, sans-serif;
+      text-align: center;
+      border: 0;
+      letter-spacing: 0;
+    }
+
+    .menu.minimal .dish { text-align: right; }
+
+    .menu.minimal .dish-line {
+      display: block;
+      font: 400 16px Arial, sans-serif;
+    }
+
+    .menu.minimal .dish-line > span:first-child { display: block; }
+    .menu.minimal .price { display: block; font-weight: 700; margin-top: 2px; }
+    .menu.minimal .dish p { display: none; }
+    .menu.minimal .menu-footer { border-top: 1px solid var(--ink); font-size: 12px; letter-spacing: 2px; }
+
+    /* 04 - Clássico */
+    .menu.classic {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 34px;
+      align-content: start;
+      padding: 52px;
+    }
+
+    .menu.classic .menu-top,
+    .menu.classic .menu-title,
+    .menu.classic .menu-footer { grid-column: 1 / -1; }
+
+    .menu.classic .menu-top { border-bottom: 3px double var(--ink); }
+
+    .menu.classic .menu-top h2 {
+      font: 400 46px Georgia, serif;
+      margin: 12px 0 8px;
+    }
+
+    .menu.classic .menu-title {
+      font: 11px Arial, sans-serif;
+      letter-spacing: 5px;
+      margin: 16px 0 4px;
+    }
+
+    .menu.classic .group > h3 {
+      font: 700 15px Georgia, serif;
+      text-align: center;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 7px;
+    }
+
+    .menu.classic .dish-line { font-size: 15px; gap: 8px; }
+    .menu.classic .dish-line > span:first-child { border-bottom: 1px dotted currentColor; padding-bottom: 2px; }
+    .menu.classic .dish p { font-size: 11px; }
+    .menu.classic .menu-footer { border-top: 3px double var(--ink); }
+
+    /* 05 - Editorial */
+    .menu.editorial {
+      display: block;
+      padding: 68px 72px;
+    }
+
+    .menu.editorial .menu-top {
+      text-align: left;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 30px;
+    }
+
+    .menu.editorial .menu-top h2 {
+      font: 400 62px/1 Georgia, serif;
+      letter-spacing: -3px;
+      margin: 16px 0;
+    }
+
+    .menu.editorial .menu-title {
+      font: 10px Arial, sans-serif;
+      text-align: left;
+      letter-spacing: 7px;
+      margin: 22px 0 44px;
+    }
+
+    .menu.editorial .group { max-width: 610px; margin: 36px auto 0; }
+
+    .menu.editorial .group > h3 {
+      font: 700 12px Arial, sans-serif;
+      letter-spacing: 4px;
+      border: 0;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 9px;
+    }
+
+    .menu.editorial .dish { margin: 26px 0; }
+    .menu.editorial .dish-line { font: 400 18px Georgia, serif; }
+    .menu.editorial .dish p { font: 13px Arial, sans-serif; max-width: 78%; }
+    .menu.editorial .menu-footer { text-align: left; border-top: 1px solid var(--ink); margin-top: 60px; }
+
+    /* 06 - Compacto */
+    .menu.compact {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0 22px;
+      align-content: start;
+      padding: 42px;
+    }
+
+    .menu.compact .menu-top,
+    .menu.compact .menu-title,
+    .menu.compact .menu-footer { grid-column: 1 / -1; }
+
+    .menu.compact .menu-top {
+      text-align: left;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 18px;
+    }
+
+    .menu.compact .menu-top h2 {
+      font: 900 40px/1 Arial, sans-serif;
+      letter-spacing: -2px;
+      margin: 9px 0;
+    }
+
+    .menu.compact .menu-title {
+      font: 700 10px Arial, sans-serif;
+      text-align: right;
+      letter-spacing: 4px;
+      margin: 10px 0 0;
+    }
+
+    .menu.compact .group > h3 {
+      font: 700 13px Arial, sans-serif;
+      border: 0;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 6px;
+    }
+
+    .menu.compact .dish { margin: 14px 0; }
+    .menu.compact .dish-line { font: 700 12px Arial, sans-serif; gap: 6px; }
+    .menu.compact .price { font-size: 11px; }
+    .menu.compact .dish p { font: 10px/1.3 Arial, sans-serif; }
+    .menu.compact .menu-footer { border-top: 2px solid var(--ink); margin-top: 28px; }
+
+    /* 07 - Lanchonete Moderna */
+    .menu.modern {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-content: start;
+      padding: 46px;
+      font-family: Arial, sans-serif;
+    }
+
+    .menu.modern .menu-top,
+    .menu.modern .menu-title,
+    .menu.modern .menu-footer { grid-column: 1 / -1; }
+
+    .menu.modern .menu-top { text-align: left; border: 0; padding: 0 0 18px; }
+
+    .menu.modern .menu-top h2 {
+      font: 900 50px/1 Arial, sans-serif;
+      letter-spacing: -2px;
+      margin: 10px 0;
+    }
+
+    .menu.modern .menu-title {
+      text-align: left;
+      font: 900 12px Arial, sans-serif;
+      letter-spacing: 3px;
+      margin: 0;
+      border-top: 3px solid var(--ink);
+      padding-top: 12px;
+    }
+
+    .menu.modern .group {
+      margin: 0;
+      border: 1px solid var(--ink);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .menu.modern .group > h3 {
+      font: 900 18px Arial, sans-serif;
+      border: 0;
+      margin: 0 0 12px;
+      padding: 0;
+    }
+
+    .menu.modern .dish {
+      margin: 12px 0;
+      padding: 11px 0;
+      border-top: 1px solid rgba(124,45,18,.18);
+    }
+
+    .menu.modern .group .dish:nth-of-type(1) { border-top: 0; padding-top: 0; }
+    .menu.modern .dish-line { font: 700 15px Arial, sans-serif; }
+    .menu.modern .dish p { font: 12px Arial, sans-serif; }
+
+    .menu.modern .price {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .menu.modern .menu-footer { border: 0; text-align: left; margin-top: 8px; }
+
+    /* 08 - Dark Premium */
+    .menu.dark {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 48px;
+      align-content: start;
+      padding: 58px 54px;
+    }
+
+    .menu.dark .menu-top,
+    .menu.dark .menu-title,
+    .menu.dark .menu-footer { grid-column: 1 / -1; }
+
+    .menu.dark .menu-top { border: 0; padding-bottom: 26px; }
+    .menu.dark .menu-top h2 { font: 400 54px/1 Georgia, serif; letter-spacing: 1px; margin: 14px 0; }
+    .menu.dark .eyebrow { letter-spacing: 5px; }
+
+    .menu.dark .menu-title {
+      font: 10px Arial, sans-serif;
+      letter-spacing: 8px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding: 10px 0;
+      margin: 0 0 18px;
+    }
+
+    .menu.dark .group > h3 {
+      font: 400 21px Georgia, serif;
+      text-transform: none;
+      border: 0;
+      padding: 0 0 8px;
+      margin-bottom: 12px;
+    }
+
+    .menu.dark .dish { margin: 18px 0; }
+    .menu.dark .dish-line { font: 400 15px Arial, sans-serif; }
+    .menu.dark .price { font-weight: 700; }
+    .menu.dark .dish p { font: 11px Arial, sans-serif; opacity: .7; }
+    .menu.dark .menu-footer { border-top: 1px solid var(--ink); font-size: 11px; letter-spacing: 2px; }
+
+    /* 09 - Tabela Essencial */
+    .menu.table {
+      display: block;
+      padding: 44px 50px;
+      font-family: Arial, sans-serif;
+    }
+
+    .menu.table .menu-top {
+      text-align: left;
+      border-bottom: 3px solid var(--ink);
+      padding-bottom: 20px;
+    }
+
+    .menu.table .menu-top h2 {
+      font: 900 42px/1 Arial, sans-serif;
+      letter-spacing: -2px;
+      margin: 8px 0;
+    }
+
+    .menu.table .menu-title {
+      text-align: left;
+      font: 700 10px Arial, sans-serif;
+      letter-spacing: 4px;
+      margin: 12px 0 24px;
+    }
+
+    .menu.table .group { margin-top: 20px; }
+
+    .menu.table .group > h3 {
+      font: 900 14px Arial, sans-serif;
+      border: 0;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 7px 9px;
+      margin: 0;
+    }
+
+    .menu.table .dish {
+      margin: 0;
+      padding: 8px 9px;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .menu.table .dish-line { font: 13px Arial, sans-serif; gap: 8px; }
+    .menu.table .dish-line > span:first-child { font-weight: 700; }
+    .menu.table .price { font-size: 12px; }
+    .menu.table .dish p { font: 10px Arial, sans-serif; margin-top: 3px; }
+    .menu.table .menu-footer { text-align: left; border-top: 3px solid var(--ink); margin-top: 28px; }
+
+    /* 10 - Promo & Destaques */
+    .menu.promo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 30px;
+      align-content: start;
+      padding: 48px;
+    }
+
+    .menu.promo .menu-top,
+    .menu.promo .menu-title,
+    .menu.promo .menu-footer { grid-column: 1 / -1; }
+
+    .menu.promo .menu-top { text-align: left; border: 0; }
+
+    .menu.promo .menu-top h2 {
+      font: 900 56px/.95 Arial, sans-serif;
+      letter-spacing: -3px;
+      margin: 10px 0;
+    }
+
+    .menu.promo .menu-title {
+      text-align: left;
+      font: 900 12px Arial, sans-serif;
+      letter-spacing: 2px;
+      border-bottom: 4px solid var(--ink);
+      padding-bottom: 10px;
+      margin: 8px 0 4px;
+    }
+
+    .menu.promo .group > h3 {
+      font: 900 18px Arial, sans-serif;
+      border: 0;
+      margin: 0 0 12px;
+    }
+
+    .menu.promo .dish { font-family: Arial, sans-serif; }
+
+    .menu.promo .dish:first-of-type {
+      border: 2px solid var(--ink);
+      padding: 14px;
+      margin: 10px 0 18px;
+    }
+
+    .menu.promo .dish:first-of-type .dish-line { font-size: 19px; }
+    .menu.promo .dish:first-of-type .price { font-size: 16px; }
+    .menu.promo .dish-line { font: 700 14px Arial, sans-serif; }
+    .menu.promo .dish p { font: 11px Arial, sans-serif; }
+    .menu.promo .menu-footer { border-top: 4px solid var(--ink); text-align: left; }
+
+    /* 11 - Categorias em Blocos */
+    .menu.blocks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-content: start;
+      padding: 44px;
+    }
+
+    .menu.blocks .menu-top,
+    .menu.blocks .menu-title,
+    .menu.blocks .menu-footer { grid-column: 1 / -1; }
+
+    .menu.blocks .menu-top { text-align: left; border: 0; padding-bottom: 12px; }
+
+    .menu.blocks .menu-top h2 {
+      font: 900 48px/1 Arial, sans-serif;
+      letter-spacing: -2px;
+      margin: 10px 0;
+    }
+
+    .menu.blocks .menu-title {
+      text-align: left;
+      font: 700 10px Arial, sans-serif;
+      letter-spacing: 5px;
+      margin: 0 0 8px;
+    }
+
+    .menu.blocks .group {
+      margin: 0;
+      border: 1px solid var(--ink);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .menu.blocks .group > h3 {
+      font: 900 17px Arial, sans-serif;
+      border-bottom: 3px solid var(--ink);
+      padding-bottom: 8px;
+      margin: 0 0 14px;
+    }
+
+    .menu.blocks .dish { margin: 14px 0; }
+    .menu.blocks .dish-line { font: 700 13px Arial, sans-serif; }
+    .menu.blocks .price { font-size: 12px; }
+    .menu.blocks .dish p { font: 10px/1.35 Arial, sans-serif; }
+    .menu.blocks .menu-footer { border: 1px solid var(--ink); padding: 12px; margin-top: 2px; text-align: left; }
+
+    /* 12 - Foto Protagonista */
+    .menu.photo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-content: start;
+      padding: 42px;
+      font-family: Arial, sans-serif;
+    }
+
+    .menu.photo .menu-top,
+    .menu.photo .menu-title,
+    .menu.photo .menu-footer { grid-column: 1 / -1; }
+
+    .menu.photo .menu-top {
+      text-align: left;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 24px;
+    }
+
+    .menu.photo .menu-top h2 {
+      font: 900 50px/1 Arial, sans-serif;
+      letter-spacing: -2px;
+      margin: 10px 0;
+    }
+
+    .menu.photo .menu-title {
+      text-align: left;
+      font: 700 10px Arial, sans-serif;
+      letter-spacing: 5px;
+      margin: 16px 0 0;
+    }
+
+    .menu.photo .group {
+      margin: 0;
+      border: 1px solid var(--ink);
+      padding: 14px;
+    }
+
+    .menu.photo .group > h3 {
+      font: 900 16px Arial, sans-serif;
+      border: 0;
+      margin: 0 0 12px;
+      padding: 0;
+    }
+
+    .menu.photo .dish {
+      margin: 16px 0 22px;
+      border-top: 1px solid rgba(255,255,255,.2);
+      padding-top: 16px;
+    }
+
+    .menu.photo .group .dish:nth-of-type(1) {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .menu.photo .item-photo { display: block; }
+    .menu.photo .dish-line { font: 700 14px Arial, sans-serif; }
+    .menu.photo .dish p { font: 11px Arial, sans-serif; }
+    .menu.photo .price { font-size: 12px; }
+    .menu.photo .menu-footer { text-align: left; border-top: 1px solid var(--ink); }
+
+    #refImages {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #refImages img {
+      width: 88px;
+      height: 96px;
+      object-fit: cover;
+      border-radius: 7px;
+      border: 1px solid #e2e6ef;
+    }
+
+    .bottom-note {
+      text-align: center;
+      font-size: 12px;
+      color: #7b8495;
+      margin: 22px;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 18px;
+      background: #152a56;
+      color: #fff;
+      border-radius: 9px;
+      display: none;
+      z-index: 50;
+      box-shadow: var(--ui-shadow);
+    }
+
+    @media (max-width: 1080px) {
+      main { grid-template-columns: 350px 1fr; }
+      .workspace { padding: 24px 18px 36px; }
+      .menu { padding: 34px 28px; min-height: 800px; }
+    }
+
+    @media (max-width: 760px) {
+      header { padding: 16px; flex-wrap: wrap; }
+      .actions { width: 100%; }
+      .actions button { flex: 1; font-size: 12px; }
+      main { display: flex; flex-direction: column; }
+      aside { padding: 22px; border-right: 0; }
+      .workspace { padding: 22px 10px 34px; }
+      .templates { grid-template-columns: 1fr 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+
+      .menu.retro,
+      .menu.craft,
+      .menu.minimal,
+      .menu.classic,
+      .menu.compact,
+      .menu.modern,
+      .menu.dark,
+      .menu.promo,
+      .menu.blocks,
+      .menu.photo {
+        grid-template-columns: 1fr;
+      }
+
+      .menu.retro .menu-top,
+      .menu.craft .menu-top,
+      .menu.minimal .menu-top,
+      .menu.classic .menu-top,
+      .menu.compact .menu-top,
+      .menu.modern .menu-top,
+      .menu.dark .menu-top,
+      .menu.promo .menu-top,
+      .menu.blocks .menu-top,
+      .menu.photo .menu-top,
+      .menu.retro .menu-title,
+      .menu.craft .menu-title,
+      .menu.minimal .menu-title,
+      .menu.classic .menu-title,
+      .menu.compact .menu-title,
+      .menu.modern .menu-title,
+      .menu.dark .menu-title,
+      .menu.promo .menu-title,
+      .menu.blocks .menu-title,
+      .menu.photo .menu-title,
+      .menu.retro .menu-footer,
+      .menu.craft .menu-footer,
+      .menu.minimal .menu-footer,
+      .menu.classic .menu-footer,
+      .menu.compact .menu-footer,
+      .menu.modern .menu-footer,
+      .menu.dark .menu-footer,
+      .menu.promo .menu-footer,
+      .menu.blocks .menu-footer,
+      .menu.photo .menu-footer {
+        grid-column: 1;
+      }
+
+      .menu.retro .menu-top { display: block; }
+      .menu.retro .menu-top p { text-align: left; }
+      .menu { padding: 30px 24px !important; }
+      h1 { font-size: 28px; }
+    }
+
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { background: #fff; }
+      header, aside, .preview-bar, .bottom-note, #toast { display: none !important; }
+      main { display: block; }
+      .workspace { padding: 0; }
+      .menu {
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        box-shadow: none;
+        padding: 25px;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      .group { break-inside: avoid; }
+      .menu-top, .group > h3 { break-after: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a class="brand" href="#">
+      <span class="brand-dot"></span>
+      <span>cardápio studio</span>
+    </a>
+
+    <div class="actions">
+      <button id="open">Abrir projeto</button>
+      <button id="save">Guardar projeto</button>
+      <button class="primary" id="pdf">Imprimir / PDF</button>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <div class="intro">
+        <p class="intro-kicker">Seu ateliê digital</p>
+        <h1>Uma marca.<br>Um cardápio único.</h1>
+        <p>Personalize os detalhes e veja o resultado em tempo real.</p>
+      </div>
+
+      <section class="panel-section">
+        <h2><span class="step">01</span>Escolha um template</h2>
+        <p class="hint">Cada template muda a estrutura do cardápio, não apenas a fonte e as cores.</p>
+
+        <div class="templates">
+          <button data-style="retro" class="selected">
+            <strong class="template-thumb t-retro"><b>MENU</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Grade Retrô</span>
+            <small>Impactante · 2 colunas · blocos fortes</small>
+          </button>
+
+          <button data-style="craft">
+            <strong class="template-thumb t-bistro"><b>BISTRÔ</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Bistrô Elegante</span>
+            <small>Clássico · refinado · categorias em blocos</small>
+          </button>
+
+          <button data-style="minimal">
+            <strong class="template-thumb t-minimal"><b>MENU</b><i></i><i></i><i></i></strong>
+            <span class="template-name">Minimal Duo</span>
+            <small>Limpo · 2 colunas · bastante respiro</small>
+          </button>
+
+          <button data-style="classic">
+            <strong class="template-thumb t-classic"><b>RESTAURANTE</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Clássico</span>
+            <small>Tradicional · preços bem alinhados</small>
+          </button>
+
+          <button data-style="editorial">
+            <strong class="template-thumb t-editorial"><b>MENU</b><i></i><i></i><i></i></strong>
+            <span class="template-name">Editorial</span>
+            <small>Premium · tipografia forte · muito respiro</small>
+          </button>
+
+          <button data-style="compact">
+            <strong class="template-thumb t-compact"><b>MENU</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Compacto</span>
+            <small>Mais itens · 3 colunas · leitura rápida</small>
+          </button>
+
+          <button data-style="modern">
+            <strong class="template-thumb t-modern"><b>LANCHES</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Lanchonete Moderna</span>
+            <small>Cards · direto · ótimo para combos</small>
+          </button>
+
+          <button data-style="dark">
+            <strong class="template-thumb t-dark"><b>MENU</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Dark Premium</span>
+            <small>Escuro · sofisticado · alto contraste</small>
+          </button>
+
+          <button data-style="table">
+            <strong class="template-thumb t-table"><b>TABELA</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Tabela Essencial</span>
+            <small>Denso · organizado · preços alinhados</small>
+          </button>
+
+          <button data-style="promo">
+            <strong class="template-thumb t-promo"><b>DESTAQUES</b><i></i><i></i><i></i></strong>
+            <span class="template-name">Promo & Destaques</span>
+            <small>Primeiro item em evidência · comercial</small>
+          </button>
+
+          <button data-style="blocks">
+            <strong class="template-thumb t-blocks"><b>BLOCOS</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Categorias em Blocos</span>
+            <small>Visual · seções independentes · modular</small>
+          </button>
+
+          <button data-style="photo">
+            <strong class="template-thumb t-photo"><b>FOTO</b><i></i><i></i><i></i><i></i></strong>
+            <span class="template-name">Foto Protagonista</span>
+            <small>Imagem por produto · visual · premium</small>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <h2><span class="step">02</span>Identidade do cliente</h2>
+
+        <label>
+          Nome do estabelecimento
+          <input id="name" value="CASA DA ESQUINA" maxlength="70">
+        </label>
+
+        <label>
+          Frase de apresentação
+          <input id="tagline" value="Comida boa. Conversa melhor." maxlength="120">
+        </label>
+
+        <div class="two-col">
+          <label>
+            Cor principal
+            <input id="color" type="color" value="#a8302d">
+          </label>
+
+          <label>
+            Cor do papel
+            <input id="paper" type="color" value="#fff4dc">
+          </label>
+        </div>
+
+        <label class="upload">
+          Adicionar logo
+          <input id="logo" type="file" accept="image/png,image/jpeg,image/webp">
+        </label>
+
+        <button id="removeLogo" class="text-button">Remover logo</button>
+
+        <label>
+          Rodapé / contato
+          <input id="contact" value="Pedidos pelo WhatsApp · (00) 90000-0000" maxlength="180">
+        </label>
+
+        <label>
+          Tipografia do cardápio
+          <select id="font">
+            <option value="auto">Do template escolhido</option>
+            <option value="Georgia">Clássica</option>
+            <option value="Arial">Contemporânea</option>
+            <option value="Courier New">Máquina de escrever</option>
+          </select>
+        </label>
+
+        <label>
+          Posição padrão do preço
+          <select id="pricePosition">
+            <option value="inline">Ao lado do nome</option>
+            <option value="below">Abaixo do nome</option>
+          </select>
+        </label>
+
+        <label>
+          Tamanho do preço
+          <select id="priceSize">
+            <option value="normal">Padrão</option>
+            <option value="small">Pequeno e discreto</option>
+          </select>
+        </label>
+
+        <label>
+          Moeda exibida
+          <select id="currency">
+            <option value="BRL">Real — R$</option>
+            <option value="USD">Dólar americano — US$</option>
+            <option value="EUR">Euro — €</option>
+          </select>
+        </label>
+
+        <label>
+          Formato do preço
+          <select id="priceFormat">
+            <option value="symbol">Com símbolo da moeda</option>
+            <option value="number">Somente o número</option>
+          </select>
+        </label>
+
+        <p class="hint">A moeda altera apenas a apresentação. Os valores não são convertidos.</p>
+
+        <label>
+          Espaçamento entre produtos
+          <input id="spacing" type="range" min="10" max="40" value="22">
+        </label>
+      </section>
+
+      <section class="panel-section">
+        <h2><span class="step">03</span>Listas e produtos</h2>
+        <p class="hint">Crie categorias e adicione produtos. Cada produto pode ter preço único, tamanhos ou foto.</p>
+
+        <div id="items"></div>
+        <button id="add" class="wide">+ Criar lista</button>
+      </section>
+
+      <section class="panel-section">
+        <h2><span class="step">04</span>Suas referências</h2>
+
+        <label class="upload">
+          Adicionar imagens de inspiração
+          <input id="refs" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+        </label>
+
+        <div id="refImages"></div>
+
+        <p class="hint">As referências ficam ao seu lado para orientar as escolhas e não entram automaticamente no cardápio.</p>
+
+        <label>
+          Anotações
+          <textarea id="notes" placeholder="Ex.: títulos fortes, fundo claro e detalhes em vermelho."></textarea>
+        </label>
+      </section>
+
+      <p class="hint">Guarde o arquivo do projeto antes de fechar. Nesta versão, o projeto é salvo em um arquivo JSON.</p>
+    </aside>
+
+    <article class="workspace">
+      <div class="preview-bar">
+        <div>
+          <strong>Seu cardápio</strong>
+          <span>Prévia em tempo real</span>
+        </div>
+
+        <button id="svg">Baixar SVG</button>
+      </div>
+
+      <div id="menu" class="menu retro"></div>
+      <div class="bottom-note">A4 · Conteúdo demonstrativo editável</div>
+    </article>
+  </main>
+
+  <input id="projectFile" type="file" accept="application/json,.json" hidden>
+  <div id="toast" role="status"></div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    const allowedStyles = [
+      'retro','craft','minimal','classic','editorial','compact',
+      'modern','dark','table','promo','blocks','photo'
+    ];
+
+    const defaultItems = [
+      {
+        category: 'Para começar',
+        name: 'Batata da casa',
+        description: 'Batatas crocantes, alecrim e maionese artesanal.',
+        price: 24,
+        pricePosition: '',
+        useSizes: false,
+        sizes: [],
+        image: ''
+      },
+      {
+        category: 'Da cozinha',
+        name: 'Burger da esquina',
+        description: 'Pão brioche, carne grelhada, queijo e molho da casa.',
+        price: 32,
+        pricePosition: '',
+        useSizes: true,
+        sizes: [
+          { name: 'P', price: 28 },
+          { name: 'M', price: 32 },
+          { name: 'G', price: 38 }
+        ],
+        image: ''
+      },
+      {
+        category: 'Da cozinha',
+        name: 'Sanduíche do campo',
+        description: 'Legumes grelhados, queijo e folhas frescas.',
+        price: 28,
+        pricePosition: '',
+        useSizes: false,
+        sizes: [],
+        image: ''
+      },
+      {
+        category: 'Algo doce',
+        name: 'Brownie quentinho',
+        description: 'Chocolate, sorvete de creme e calda da casa.',
+        price: 18,
+        pricePosition: '',
+        useSizes: false,
+        sizes: [],
+        image: ''
+      },
+      {
+        category: 'Para beber',
+        name: 'Limonada fresca',
+        description: 'Limão espremido na hora e um toque de hortelã.',
+        price: 12,
+        pricePosition: '',
+        useSizes: false,
+        sizes: [],
+        image: ''
+      }
+    ];
+
+    let state = {
+      version: 2,
+      style: 'retro',
+      logo: '',
+      refs: [],
+      lists: ['Para começar', 'Da cozinha', 'Algo doce', 'Para beber'],
+      items: structuredClone(defaultItems)
+    };
+
+    const presets = {
+      retro:    { ink:'#f6ecd8', paper:'#16513f', font:'Arial',   pricePosition:'inline', priceSize:'normal', spacing:'18' },
+      craft:    { ink:'#201c18', paper:'#efe7dc', font:'Georgia', pricePosition:'inline', priceSize:'normal', spacing:'20' },
+      minimal:  { ink:'#33291c', paper:'#f4ecd8', font:'Arial',   pricePosition:'below',  priceSize:'normal', spacing:'24' },
+      classic:  { ink:'#252525', paper:'#fbf8f1', font:'Georgia', pricePosition:'inline', priceSize:'small',  spacing:'18' },
+      editorial:{ ink:'#2d2927', paper:'#faf7f2', font:'Georgia', pricePosition:'inline', priceSize:'normal', spacing:'26' },
+      compact:  { ink:'#f0eee5', paper:'#222d33', font:'Arial',   pricePosition:'inline', priceSize:'small',  spacing:'14' },
+      modern:   { ink:'#7c2d12', paper:'#fff7ed', font:'Arial',   pricePosition:'inline', priceSize:'small',  spacing:'14' },
+      dark:     { ink:'#f5e7c8', paper:'#111827', font:'Georgia', pricePosition:'inline', priceSize:'small',  spacing:'18' },
+      table:    { ink:'#1f2937', paper:'#f8fafc', font:'Arial',   pricePosition:'inline', priceSize:'small',  spacing:'10' },
+      promo:    { ink:'#7c2d12', paper:'#fffbeb', font:'Arial',   pricePosition:'inline', priceSize:'normal', spacing:'16' },
+      blocks:   { ink:'#312e81', paper:'#eef2ff', font:'Arial',   pricePosition:'inline', priceSize:'small',  spacing:'14' },
+      photo:    { ink:'#fafafa', paper:'#18181b', font:'Arial',   pricePosition:'inline', priceSize:'small',  spacing:'18' }
+    };
+
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[char]));
+
+    function toast(message) {
+      $('toast').textContent = message;
+      $('toast').style.display = 'block';
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => $('toast').style.display = 'none', 3500);
+    }
+
+    function values() {
+      return Object.fromEntries([
+        'name','tagline','color','paper','contact','font','spacing',
+        'pricePosition','priceSize','currency','priceFormat','notes'
+      ].map(id => [id, $(id).value]));
+    }
+
+    function money(value) {
+      const currency = $('currency').value;
+      const locale = currency === 'USD' ? 'en-US' : 'pt-BR';
+
+      if ($('priceFormat').value === 'number') {
+        return Number(value || 0).toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      return Number(value || 0).toLocaleString(locale, {
+        style: 'currency',
+        currency
+      });
+    }
+
+    function migrateLists() {
+      if (!Array.isArray(state.lists)) state.lists = [];
+
+      state.items.forEach(item => {
+        item.category = String(item.category || '').trim() || 'Cardápio';
+        if (!state.lists.includes(item.category)) state.lists.push(item.category);
+      });
+
+      if (!state.lists.length) state.lists.push('Cardápio');
+    }
+
+    function effectivePricePosition(item) {
+      return item.pricePosition || $('pricePosition').value;
+    }
+
+    function renderPrice(item) {
+      if (item.useSizes && Array.isArray(item.sizes) && item.sizes.length) {
+        return `
+          <span class="price variant-prices">
+            ${item.sizes.map(size => `
+              <span><small>${esc(size.name || 'Tamanho')}</small> ${money(size.price)}</span>
+            `).join('')}
+          </span>
+        `;
+      }
+
+      return `<span class="price">${money(item.price)}</span>`;
+    }
+
+    function renderDish(item) {
+      const priceClass = effectivePricePosition(item) === 'below'
+        ? 'item-price-below'
+        : 'item-price-inline';
+
+      return `
+        <div class="dish ${priceClass}">
+          ${item.image ? `<img class="item-photo" src="${item.image}" alt="${esc(item.name || 'Produto')}">` : ''}
+          <div class="dish-line">
+            <span>${esc(item.name || 'Novo produto')}</span>
+            ${renderPrice(item)}
+          </div>
+          ${item.description ? `<p>${esc(item.description)}</p>` : ''}
+        </div>
+      `;
+    }
+
+    function render() {
+      migrateLists();
+
+      const v = values();
+      const menu = $('menu');
+
+      menu.className =
+        'menu ' +
+        state.style +
+        (v.pricePosition === 'below' ? ' price-below' : '') +
+        (v.priceSize === 'small' ? ' price-small' : '');
+
+      menu.style.setProperty('--ink', v.color);
+      menu.style.setProperty('--paper', v.paper);
+      menu.style.setProperty('--gap', v.spacing + 'px');
+      menu.style.fontFamily = v.font === 'auto' ? 'Georgia,serif' : v.font;
+
+      const groups = state.lists.filter(category =>
+        state.items.some(item => item.category === category)
+      );
+
+      menu.innerHTML = `
+        <div class="menu-top">
+          ${state.logo ? `<img class="logo" src="${state.logo}" alt="Logo do estabelecimento">` : ''}
+          <div class="eyebrow">Feito com capricho</div>
+          <h2>${esc(v.name || 'Nome do estabelecimento')}</h2>
+          <p>${esc(v.tagline)}</p>
+        </div>
+
+        <div class="menu-title">Cardápio</div>
+
+        ${groups.map(category => `
+          <section class="group">
+            <h3>${esc(category)}</h3>
+            ${state.items
+              .filter(item => item.category === category)
+              .map(renderDish)
+              .join('')}
+          </section>
+        `).join('')}
+
+        <footer class="menu-footer">${esc(v.contact)}</footer>
+      `;
+
+      document.querySelectorAll('[data-style]').forEach(button => {
+        button.classList.toggle('selected', button.dataset.style === state.style);
+      });
+    }
+
+    function productForm(item, index) {
+      return `
+        <div class="item-form" data-index="${index}">
+          <div class="item-top">
+            <strong>Produto</strong>
+            <button class="delete" aria-label="Excluir produto ${index + 1}">Excluir</button>
+          </div>
+
+          <label>
+            Nome
+            <input data-key="name" value="${esc(item.name)}">
+          </label>
+
+          <label>
+            Descrição
+            <input data-key="description" value="${esc(item.description)}">
+          </label>
+
+          <label>
+            Posição do preço neste produto
+            <select data-key="pricePosition">
+              <option value="" ${!item.pricePosition ? 'selected' : ''}>Usar o padrão</option>
+              <option value="inline" ${item.pricePosition === 'inline' ? 'selected' : ''}>Ao lado do nome</option>
+              <option value="below" ${item.pricePosition === 'below' ? 'selected' : ''}>Abaixo do nome</option>
+            </select>
+          </label>
+
+          <label>
+            Usar tamanhos
+            <select data-size-mode>
+              <option value="no" ${!item.useSizes ? 'selected' : ''}>Não — preço único</option>
+              <option value="yes" ${item.useSizes ? 'selected' : ''}>Sim — preço por tamanho</option>
+            </select>
+          </label>
+
+          ${item.useSizes ? `
+            <div class="sizes">
+              ${(item.sizes || []).map((size, sizeIndex) => `
+                <div class="variant-row" data-size-index="${sizeIndex}">
+                  <label>
+                    Tamanho
+                    <input data-size-key="name" value="${esc(size.name)}" placeholder="Ex.: P, M, G ou 500 g">
+                  </label>
+
+                  <label>
+                    Preço
+                    <input data-size-key="price" type="number" min="0" step="0.01" value="${Number(size.price || 0)}">
+                  </label>
+
+                  <button data-remove-size="${sizeIndex}" ${(item.sizes || []).length <= 1 ? 'disabled' : ''}>
+                    Remover tamanho
+                  </button>
+                </div>
+              `).join('')}
+
+              <button data-add-size>+ Adicionar tamanho</button>
+            </div>
+          ` : `
+            <label>
+              Preço
+              <input type="number" min="0" step="0.01" data-key="price" value="${Number(item.price || 0)}">
+            </label>
+          `}
+
+          <label class="upload">
+            Foto do produto
+            <input data-product-image type="file" accept="image/png,image/jpeg,image/webp">
+          </label>
+
+          ${item.image ? `<button class="text-button" data-remove-image>Remover foto do produto</button>` : ''}
+        </div>
+      `;
+    }
+
+    function forms() {
+      migrateLists();
+
+      $('items').innerHTML = state.lists.map((category, listIndex) => `
+        <section class="list-form" data-list="${listIndex}">
+          <label>
+            Nome da lista
+            <input data-list-name="${listIndex}" value="${esc(category)}">
+          </label>
+
+          <p class="hint">${state.items.filter(item => item.category === category).length} produto(s)</p>
+
+          ${state.items.map((item, index) =>
+            item.category === category ? productForm(item, index) : ''
+          ).join('')}
+
+          <button class="wide" data-add-list="${listIndex}">
+            + Adicionar produto
+          </button>
+
+          ${state.items.some(item => item.category === category)
+            ? ''
+            : `<button class="text-button" data-remove-list="${listIndex}">Remover lista vazia</button>`
+          }
+        </section>
+      `).join('');
+
+      render();
+    }
+
+    function applyPreset(style) {
+      const preset = presets[style];
+      if (!preset) return;
+
+      $('color').value = preset.ink;
+      $('paper').value = preset.paper;
+      $('font').value = preset.font;
+      $('pricePosition').value = preset.pricePosition;
+      $('priceSize').value = preset.priceSize;
+      $('spacing').value = preset.spacing;
+    }
+
+    document.querySelectorAll('[data-style]').forEach(button => {
+      button.addEventListener('click', () => {
+        state.style = button.dataset.style;
+        applyPreset(state.style);
+        render();
+      });
+    });
+
+    [
+      'name','tagline','color','paper','contact','font','spacing',
+      'pricePosition','priceSize','currency','priceFormat'
+    ].forEach(id => $(id).addEventListener('input', render));
+
+    $('items').addEventListener('change', async event => {
+      const target = event.target;
+
+      if (target.hasAttribute('data-product-image')) {
+        const itemIndex = Number(target.closest('[data-index]').dataset.index);
+        const file = target.files[0];
+
+        if (!file) return;
+
+        try {
+          state.items[itemIndex].image = await readImage(file, 3);
+          forms();
+        } catch (error) {
+          toast(error.message);
+        }
+        return;
+      }
+
+      if (target.hasAttribute('data-size-mode')) {
+        const item = state.items[Number(target.closest('[data-index]').dataset.index)];
+        item.useSizes = target.value === 'yes';
+
+        if (item.useSizes && (!Array.isArray(item.sizes) || !item.sizes.length)) {
+          item.sizes = [
+            { name:'P', price:item.price || 0 },
+            { name:'M', price:item.price || 0 },
+            { name:'G', price:item.price || 0 }
+          ];
+        }
+
+        forms();
+        return;
+      }
+
+      if (target.dataset.listName !== undefined) {
+        const listIndex = Number(target.dataset.listName);
+        const oldName = state.lists[listIndex];
+        const newName = target.value.trim();
+
+        if (!newName) {
+          toast('O nome da lista não pode ficar vazio.');
+          target.value = oldName;
+          return;
+        }
+
+        if (state.lists.some((name, index) =>
+          index !== listIndex &&
+          name.toLocaleLowerCase() === newName.toLocaleLowerCase()
+        )) {
+          toast('Use um nome de lista diferente.');
+          target.value = oldName;
+          return;
+        }
+
+        state.lists[listIndex] = newName;
+        state.items.forEach(item => {
+          if (item.category === oldName) item.category = newName;
+        });
+
+        forms();
+        return;
+      }
+    });
+
+    $('items').addEventListener('input', event => {
+      const target = event.target;
+
+      if (target.dataset.sizeKey) {
+        const itemIndex = Number(target.closest('[data-index]').dataset.index);
+        const sizeIndex = Number(target.closest('[data-size-index]').dataset.sizeIndex);
+        const key = target.dataset.sizeKey;
+
+        state.items[itemIndex].sizes[sizeIndex][key] =
+          key === 'price'
+            ? Math.max(0, Number(target.value) || 0)
+            : target.value;
+
+        render();
+        return;
+      }
+
+      if (!target.dataset.key) return;
+
+      const itemIndex = Number(target.closest('[data-index]').dataset.index);
+      const key = target.dataset.key;
+
+      state.items[itemIndex][key] =
+        key === 'price'
+          ? Math.max(0, Number(target.value) || 0)
+          : target.value;
+
+      render();
+    });
+
+    $('items').addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button) return;
+
+      if (button.hasAttribute('data-add-size')) {
+        const itemIndex = Number(button.closest('[data-index]').dataset.index);
+        state.items[itemIndex].sizes.push({ name:'', price:0 });
+        forms();
+        return;
+      }
+
+      if (button.dataset.removeSize !== undefined) {
+        const itemIndex = Number(button.closest('[data-index]').dataset.index);
+        const sizeIndex = Number(button.dataset.removeSize);
+
+        if (state.items[itemIndex].sizes.length > 1) {
+          state.items[itemIndex].sizes.splice(sizeIndex, 1);
+        }
+
+        forms();
+        return;
+      }
+
+      if (button.hasAttribute('data-remove-image')) {
+        const itemIndex = Number(button.closest('[data-index]').dataset.index);
+        state.items[itemIndex].image = '';
+        forms();
+        return;
+      }
+
+      if (button.dataset.addList !== undefined) {
+        const category = state.lists[Number(button.dataset.addList)];
+
+        state.items.push({
+          category,
+          name:'',
+          description:'',
+          price:0,
+          pricePosition:'',
+          useSizes:false,
+          sizes:[],
+          image:''
+        });
+
+        forms();
+
+        const newForm = $('items').querySelector(`[data-index="${state.items.length - 1}"] [data-key="name"]`);
+        if (newForm) newForm.focus();
+        return;
+      }
+
+      if (button.classList.contains('delete')) {
+        const index = Number(button.closest('[data-index]').dataset.index);
+        state.items.splice(index, 1);
+        forms();
+        return;
+      }
+
+      if (button.dataset.removeList !== undefined) {
+        const listIndex = Number(button.dataset.removeList);
+        const category = state.lists[listIndex];
+
+        if (!state.items.some(item => item.category === category)) {
+          state.lists.splice(listIndex, 1);
+          forms();
+        }
+      }
+    });
+
+    $('add').addEventListener('click', () => {
+      let number = 1;
+      while (state.lists.includes('Nova lista ' + number)) number++;
+
+      state.lists.push('Nova lista ' + number);
+      forms();
+
+      const input = $('items').lastElementChild.querySelector('[data-list-name]');
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    });
+
+    async function readImage(file, maxMb = 5) {
+      if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
+        throw new Error('Use imagens PNG, JPG ou WebP.');
+      }
+
+      if (file.size > maxMb * 1024 * 1024) {
+        throw new Error(`Escolha uma imagem de até ${maxMb} MB.`);
+      }
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Não foi possível abrir a imagem.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    $('logo').addEventListener('change', async event => {
+      try {
+        if (event.target.files[0]) {
+          state.logo = await readImage(event.target.files[0], 5);
+          render();
+        }
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+
+    $('removeLogo').addEventListener('click', () => {
+      state.logo = '';
+      $('logo').value = '';
+      render();
+    });
+
+    function refs() {
+      $('refImages').innerHTML = state.refs.map((src, index) =>
+        `<img src="${src}" alt="Referência visual ${index + 1}">`
+      ).join('');
+    }
+
+    $('refs').addEventListener('change', async event => {
+      try {
+        const files = [...event.target.files].slice(0, 6);
+        state.refs = await Promise.all(files.map(file => readImage(file, 5)));
+        refs();
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+
+    function download(data, type, name) {
+      const url = URL.createObjectURL(new Blob([data], { type }));
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = name;
+      anchor.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    $('save').addEventListener('click', () => {
+      const project = {
+        version: 2,
+        ...state,
+        settings: values()
+      };
+
+      download(
+        JSON.stringify(project, null, 2),
+        'application/json',
+        'cardapio-projeto.json'
+      );
+
+      toast('Projeto baixado. Guarde o arquivo para reabrir depois.');
+    });
+
+    $('open').addEventListener('click', () => $('projectFile').click());
+
+    $('projectFile').addEventListener('change', async event => {
+      try {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.size > 60 * 1024 * 1024) {
+          throw new Error('Arquivo de projeto muito grande.');
+        }
+
+        const data = JSON.parse(await file.text());
+
+        if (
+          ![1,2].includes(data.version) ||
+          !Array.isArray(data.items) ||
+          data.items.length > 10000 ||
+          !allowedStyles.includes(data.style)
+        ) {
+          throw new Error('Arquivo de projeto inválido.');
+        }
+
+        const validImage = value =>
+          typeof value === 'string' &&
+          /^data:image\/(png|jpeg|webp);base64,[a-zA-Z0-9+/=]+$/.test(value);
+
+        state = {
+          version: 2,
+          style: data.style,
+          logo: validImage(data.logo) ? data.logo : '',
+          refs: (Array.isArray(data.refs) ? data.refs : [])
+            .filter(validImage)
+            .slice(0, 6),
+          lists: Array.isArray(data.lists)
+            ? [...new Set(data.lists.filter(name => typeof name === 'string' && name.trim()).map(name => name.trim()))]
+            : [],
+          items: data.items.map(item => ({
+            category: String(item.category ?? ''),
+            name: String(item.name ?? ''),
+            description: String(item.description ?? ''),
+            price: Math.max(0, Number(item.price) || 0),
+            pricePosition: ['inline','below'].includes(item.pricePosition) ? item.pricePosition : '',
+            useSizes: item.useSizes === true && Array.isArray(item.sizes) && item.sizes.length > 0,
+            sizes: (Array.isArray(item.sizes) ? item.sizes : [])
+              .slice(0, 100)
+              .map(size => ({
+                name: String(size.name ?? ''),
+                price: Number.isFinite(Number(size.price))
+                  ? Math.max(0, Number(size.price))
+                  : 0
+              })),
+            image: validImage(item.image) ? item.image : ''
+          }))
+        };
+
+        const settings = {
+          pricePosition:'inline',
+          priceSize:'normal',
+          currency:'BRL',
+          priceFormat:'symbol',
+          ...(data.settings || {})
+        };
+
+        Object.entries(settings).forEach(([id, value]) => {
+          if ([
+            'name','tagline','color','paper','contact','font','spacing',
+            'pricePosition','priceSize','currency','priceFormat','notes'
+          ].includes(id) && $(id)) {
+            $(id).value = String(value);
+          }
+        });
+
+        migrateLists();
+        forms();
+        refs();
+        toast('Projeto aberto.');
+      } catch (error) {
+        toast(error.message || 'Não foi possível abrir o projeto.');
+      }
+
+      event.target.value = '';
+    });
+
+    $('pdf').addEventListener('click', () => window.print());
+
+    $('svg').addEventListener('click', () => {
+      try {
+        const menu = $('menu');
+        const width = 760;
+        const height = Math.ceil(menu.scrollHeight * width / menu.clientWidth);
+        const css = document.querySelector('style').textContent;
+
+        const body = `
+          <div xmlns="http://www.w3.org/1999/xhtml">
+            <style>${css}</style>
+            ${menu.outerHTML}
+          </div>
+        `;
+
+        const svg = `
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="${width}"
+               height="${height}"
+               viewBox="0 0 ${menu.clientWidth} ${menu.scrollHeight}">
+            <foreignObject width="100%" height="100%">
+              ${body.replace(/<img ([^>]+)>/g, '<img $1 />')}
+            </foreignObject>
+          </svg>
+        `;
+
+        download(svg, 'image/svg+xml', 'cardapio.svg');
+        toast('SVG baixado.');
+      } catch {
+        toast('Não foi possível exportar. Use Imprimir / PDF.');
+      }
+    });
+
+    forms();
+    refs();
+  </script>
+</body>
+</html>
